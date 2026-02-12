@@ -31,3 +31,30 @@ print(data.json())
 # )
 # print(data.status_code)
 # print(data.json())
+
+data = requests.post("http://127.0.0.1:8002/user",
+                     json={"name": "admin2", "password": "1234"})
+print(data.status_code)
+print(data.json())
+
+data = requests.post("http://127.0.0.1:8002/login",
+                     json={"name": "admin2", "password": "1234"}
+                     )
+
+print(data.status_code)
+print(data.json())
+
+token = data.json()["token"]
+
+# data = requests.post(
+#     "http://127.0.0.1:8002/advertisement", json={"title": "advertisement", "important": True},
+#     headers={"x-token": token}
+# )
+# print(data.status_code)
+# print(data.json())
+
+data = requests.get("http://127.0.0.1:8000/api/v1/todo/1",
+                    headers={"x-token": token}
+                    )
+print(data.status_code)
+print(data.json())

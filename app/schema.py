@@ -1,7 +1,12 @@
 import datetime
-from typing import Literal
+import uuid
+from typing import Literal, Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
+
+class BaseUserRequest(BaseModel):
+    name: str
+    password: str
 
 
 class IdResponse(BaseModel):
@@ -48,3 +53,31 @@ class SearchAdvirtesmentResponse(BaseModel):
 
 class DeleteAdvirtesmentResponse(SuccessResponse):
     pass
+
+
+class CreateUserRequest(BaseUserRequest):
+    email: EmailStr
+    password: str
+    role: str = 'user'  # по умолчанию 'user'
+
+
+    class Config:
+        orm_mode = True
+
+
+class CreateUserResponse(IdResponse):
+    id: int
+    email: str
+    role: str
+    # Добавьте остальные поля
+
+    class Config:
+        orm_mode = True
+
+
+class LoginRequest(BaseUserRequest):
+    pass
+
+
+class LoginResponse(BaseModel):
+    token: uuid.UUID
