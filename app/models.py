@@ -21,7 +21,7 @@ class Token(Base):
     __tablename__ = "token"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     token: Mapped[uuid.UUID] = mapped_column(
-        UUID, unique=True, server_default=func.gen_random_uuid()
+        UUID(as_uuid=True), unique=True, server_default=func.gen_random_uuid()
     )
     create_time: Mapped[datetime.datetime] = mapped_column(
         DateTime, server_default=func.now()
@@ -31,28 +31,33 @@ class Token(Base):
 
     @property
     def dict(self):
-        return {"token": self.token}
+        return {"token": str(self.token)}
 
 
 class User(Base):
     __tablename__ = "user"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    name: Mapped[str] = mapped_column(String, unique=True)
+    username: Mapped[str] = mapped_column(String, unique=True)
     password: Mapped[str] = mapped_column(String)
     role: Mapped[ROLE] = mapped_column(String, default="user")
     tokens: Mapped[list[Token]] = relationship(
-        Token, lazy="joined", back_populates="user"
+        "Token", lazy="joined", back_populates="user"
     )
-    Advertisments: Mapped[list["Advertisment"]] = relationship(
-        "Advertisment", lazy="joined", back_populates="user"
+    advertisements: Mapped[list["Advertisement"]] = relationship(
+        "Advertisement", lazy="joined", back_populates="user"
     )
+
     @property
     def dict(self):
-        return {"id": self.id, "name": self.name}
+        return {"id": self.id, "username": self.username}
+
+    @property
+    def is_admin(self) -> bool:
+        return self.role == "admin"
 
 
-class Advertisment(Base):
-    __tablename__ = "Advirtesments"
+class Advertisement(Base):
+    __tablename__ = "advertisements"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     title: Mapped[str] = mapped_column(String, index=True)
     description: Mapped[str] = mapped_column(String)
@@ -63,7 +68,7 @@ class Advertisment(Base):
     )
     end_time: Mapped[datetime.datetime] = mapped_column(DateTime, nullable=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("user.id"))
-    user: Mapped["User"] = relationship("User", lazy="joined", back_populates="todos")
+    user: Mapped["User"] = relationship("User", lazy="joined", back_populates="advertisements")
 
     @property
     def dict(self):
@@ -73,12 +78,12 @@ class Advertisment(Base):
             "description": self.description,
             "price": self.price,
             "author": self.author,
-            "create_date": self.create_date.isoformat(),
+            "create_date": self.create_date.isoformat() if self.create_date else None,
         }
 
 
-ORM_OBJ = Advertisment | User | Token
-ORM_CLS = type[Advertisment] | type[User] | type[Token]
+ORM_OBJ = Advertisement | User | Token
+ORM_CLS = type[Advertisement] | type[User] | type[Token]
 
 async def init_orm():
     async with engine.begin() as conn:

@@ -1,3 +1,3 @@
 from typing import Literal
 
-ROLE = Literal["user"] | Literal["admin"] | Literal["manager"]
+ROLE = Literal["user", "admin"]

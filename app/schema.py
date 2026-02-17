@@ -5,7 +5,7 @@ from typing import Literal, Optional
 from pydantic import BaseModel, EmailStr
 
 class BaseUserRequest(BaseModel):
-    name: str
+    username: str
     password: str
 
 
@@ -14,31 +14,34 @@ class IdResponse(BaseModel):
 
 
 class SuccessResponse(BaseModel):
-    status: Literal["success"]
+    status: Literal["success"] = "success"
 
 
-class CreateAdvirtesmentRequest(BaseModel):
+class CreateAdvertisementRequest(BaseModel):
     title: str
     description: str
     price: float
     author: str
 
+    class Config:
+        orm_mode = True
 
-class CreateAdvirtesmentResponse(IdResponse):
+
+class CreateAdvertisementResponse(IdResponse):
     pass
 
 
-class UpdateAdvirtesmentRequest(BaseModel):
+class UpdateAdvertisementRequest(BaseModel):
     title: str = None
     description: str = None
     price: float = None
     author: str = None
 
-class UpdateAdvirtesmentResponse(SuccessResponse):
+class UpdateAdvertisementResponse(SuccessResponse):
     pass
 
 
-class GetAdvirtesmentResponse(BaseModel):
+class GetAdvertisementResponse(BaseModel):
     id: int
     title: str
     description: str = None
@@ -47,29 +50,24 @@ class GetAdvirtesmentResponse(BaseModel):
     create_date: datetime.datetime
 
 
-class SearchAdvirtesmentResponse(BaseModel):
-    results: list[GetAdvirtesmentResponse]
+class SearchAdvertisementResponse(BaseModel):
+    results: list[GetAdvertisementResponse]
 
 
-class DeleteAdvirtesmentResponse(SuccessResponse):
+class DeleteAdvertisementResponse(SuccessResponse):
     pass
 
 
 class CreateUserRequest(BaseUserRequest):
-    email: EmailStr
-    password: str
-    role: str = 'user'  # по умолчанию 'user'
-
+    role: Literal['user', 'admin'] = 'user'
 
     class Config:
         orm_mode = True
 
 
 class CreateUserResponse(IdResponse):
-    id: int
-    email: str
-    role: str
-    # Добавьте остальные поля
+    username: str
+    role: Literal['user', 'admin']
 
     class Config:
         orm_mode = True
